@@ -1,0 +1,5 @@
+.vscode/
+.ipynb*/
+data/
+.history/
+__pycache__/

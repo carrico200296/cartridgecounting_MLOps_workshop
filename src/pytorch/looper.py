@@ -1,0 +1,156 @@
+"""Looper implementation."""
+
+import sys
+
+sys.path.append("../")
+
+from typing import Optional, List
+
+import torch
+from torch.utils.tensorboard import SummaryWriter
+import numpy as np
+import matplotlib
+import pytorch.utils as torch_utils
+from tqdm import tqdm
+
+
+class Looper:
+    """Looper handles epoch loops, logging, and plotting."""
+
+    def __init__(
+        self,
+        network: torch.nn.Module,
+        device: torch.device,
+        loss: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        data_loader: torch.utils.data.DataLoader,
+        dataset_size: int,
+        tensorboard_writer: SummaryWriter = None,
+        validation: bool = False,
+    ):
+        """
+        Initialize Looper.
+
+        Args:
+            network: already initialized model
+            device: a device model is working on
+            loss: the cost function
+            optimizer: already initialized optimizer link to network parameters
+            data_loader: already initialized data loader
+            dataset_size: no. of samples in dataset
+            plot: matplotlib axes
+            validation: flag to set train or eval mode
+
+        """
+        self.network = network
+        self.device = device
+        self.loss = loss
+        self.optimizer = optimizer
+        self.loader = data_loader
+        self.size = dataset_size
+        self.validation = validation
+        self.tensorboard_writer = tensorboard_writer
+        self.running_loss = []
+
+    def run(self):
+        """Run a single epoch loop.
+
+        Returns:
+            Mean absolute error.
+        """
+        # reset current results and add next entry for running loss
+        self.true_values = []
+        self.predicted_values = []
+        self.errors = []
+        self.running_loss.append(0)
+        self.running_loss.append(0)
+        
+        # set a proper mode: train or eval
+        self.network.train(not self.validation)
+
+        for image, label in tqdm(self.loader):
+            # move images and labels to given device
+            image = image.to(self.device)
+            label = label.to(self.device)
+
+            # clear accumulated gradient if in train mode
+            if not self.validation:
+                self.optimizer.zero_grad()
+
+            # get model prediction (a density map)
+            result = self.network(image)
+
+            # calculate loss and update running loss
+            loss = self.loss(result, label)
+            self.running_loss[-1] += image.shape[0] * loss.item() / self.size
+
+            # update weights if in train mode
+            if not self.validation:
+                loss.backward()
+                self.optimizer.step()
+
+            # loop over batch samples
+            for true, predicted in zip(label, result):
+                # integrate a density map to get no. of objects
+                # note: density maps were normalized to 255 * no. of objects
+                #       to make network learn better
+                # TODO fix for segmentation
+                true_counts = torch_utils.get_count(true.cpu())
+                predicted_counts = torch_utils.get_count(predicted.cpu())
+                batch_errors = true_counts - predicted_counts
+
+                # update current epoch results
+                self.true_values.append(true_counts)
+                self.predicted_values.append(predicted_counts)
+                self.errors.append(batch_errors)
+
+        # calculate errors and standard deviation
+        self.update_errors()
+
+        # update tensorboard
+        if self.tensorboard_writer:
+            if self.validation:
+                self.tensorboard_writer.add_scalar("Loss/Valid", loss.item())
+                self.tensorboard_writer.add_scalar(
+                    "MeanCountError/Valid", np.mean(self.errors)
+                )
+                self.tensorboard_writer.add_histogram(
+                    "ErrorCount/Valid", np.array(self.errors)
+                )
+            else:
+                self.tensorboard_writer.add_scalar("Loss/Train", loss.item())
+                self.tensorboard_writer.add_scalar(
+                    "MeanCountError/Train", np.mean(self.errors)
+                )
+                self.tensorboard_writer.add_histogram(
+                    "ErrorCount/Train", np.array(self.errors)
+                )
+
+        # print epoch summary
+        self.log()
+
+        return self.mean_abs_err
+
+    def update_errors(self):
+        """
+        Calculate errors and standard deviation based on current
+        true and predicted values.
+        """
+        self.err = [
+            true - predicted
+            for true, predicted in zip(self.true_values, self.predicted_values)
+        ]
+        self.abs_err = [abs(error) for error in self.err]
+        self.mean_err = sum(self.err) / self.size
+        self.mean_abs_err = sum(self.abs_err) / self.size
+        self.std = np.array(self.err).std()
+
+    def log(self):
+        """Print current epoch results."""
+        print(
+            f"{'Train' if not self.validation else 'Valid'}:\n"
+            f"\tAverage loss: {self.running_loss[-1]:3.4f}\n"
+            f"\tMean error: {self.mean_err:3.3f}\n"
+            f"\tMean absolute error: {self.mean_abs_err:3.3f}\n"
+            f"\tError deviation: {self.std:3.3f}"
+        )

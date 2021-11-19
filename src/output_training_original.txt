@@ -1,0 +1,125 @@
+Epoch 1
+
+Train:
+	Average loss: 0.0434
+	Mean error: -0.339
+	Mean absolute error: 0.382
+	Error deviation: 1.595
+Valid:
+	Average loss: 0.0420
+	Mean error: -0.139
+	Mean absolute error: 0.266
+	Error deviation: 0.590
+
+New best result: 0.26582278481012656
+
+--------------------------------------------------------------------------------
+
+Epoch 2
+
+Train:
+	Average loss: 0.0418
+	Mean error: -0.288
+	Mean absolute error: 0.332
+	Error deviation: 1.334
+Valid:
+	Average loss: 0.0413
+	Mean error: -0.114
+	Mean absolute error: 0.266
+	Error deviation: 0.573
+
+--------------------------------------------------------------------------------
+
+Epoch 3
+
+Train:
+	Average loss: 0.0403
+	Mean error: -0.257
+	Mean absolute error: 0.288
+	Error deviation: 1.302
+Valid:
+	Average loss: 0.0503
+	Mean error: -0.810
+	Mean absolute error: 0.937
+	Error deviation: 1.502
+
+--------------------------------------------------------------------------------
+
+Epoch 4
+
+Train:
+	Average loss: 0.0408
+	Mean error: -0.514
+	Mean absolute error: 0.552
+	Error deviation: 1.440
+Valid:
+	Average loss: 0.0387
+	Mean error: -0.063
+	Mean absolute error: 0.215
+	Error deviation: 0.460
+
+New best result: 0.21518987341772153
+
+--------------------------------------------------------------------------------
+
+Epoch 5
+
+Train:
+	Average loss: 0.0391
+	Mean error: -0.194
+	Mean absolute error: 0.232
+	Error deviation: 1.264
+Valid:
+	Average loss: 0.0392
+	Mean error: -0.101
+	Mean absolute error: 0.253
+	Error deviation: 0.518
+
+--------------------------------------------------------------------------------
+
+Epoch 6
+
+Train:
+	Average loss: 0.0371
+	Mean error: -0.323
+	Mean absolute error: 0.354
+	Error deviation: 1.758
+Valid:
+	Average loss: 0.0380
+	Mean error: -0.114
+	Mean absolute error: 0.241
+	Error deviation: 0.527
+
+--------------------------------------------------------------------------------
+
+Epoch 7
+
+Train:
+	Average loss: 0.0355
+	Mean error: -0.197
+	Mean absolute error: 0.216
+	Error deviation: 1.260
+Valid:
+	Average loss: 0.0369
+	Mean error: -0.114
+	Mean absolute error: 0.266
+	Error deviation: 0.595
+
+--------------------------------------------------------------------------------
+
+Epoch 8
+
+Train:
+	Average loss: 0.0349
+	Mean error: -0.288
+	Mean absolute error: 0.326
+	Error deviation: 1.218
+Valid:
+	Average loss: 0.0371
+	Mean error: -0.076
+	Mean absolute error: 0.228
+	Error deviation: 0.546
+
+--------------------------------------------------------------------------------
+
+[Training done] Best result: 0.21518987341772153
