@@ -96,6 +96,6 @@ for epoch in range(25):
             print(f"\nNew best result: {result}")
         print("\n", "-"*80, "\n", sep='')
 
-        if es_count > 2:
+        if es_count > 10:
             break
 print(f"[Training done] Best result: {current_best}")
