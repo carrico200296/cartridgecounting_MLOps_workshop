@@ -84,7 +84,6 @@ dependencies:
     - pyasn1==0.4.8
     - pyasn1-modules==0.2.8
     - pyparsing==2.4.7
-    - pypylon==1.7.4
     - pypylon==1.7.2
     - pyqt5==5.15.4
     - pyqt5-qt5==5.15.2
