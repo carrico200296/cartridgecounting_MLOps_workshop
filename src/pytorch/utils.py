@@ -6,13 +6,13 @@ import torch
 import cv2
 from torch.utils.data import Dataset, DataLoader
 import pathlib
-from data.preprocessing import preprocess_image, preprocess_image_segmentation
+from data.preprocessing import preprocess_image_segmentation
 from scipy.ndimage.measurements import label
 import numpy as np
-import Augmentor
 import time
 from pytorch.model import UNet
-
+from pypylon import pylon
+import requests, json
 
 def threshold(image, thres=0.1):
     return image > thres
@@ -165,3 +165,21 @@ class CartridgeCounting:
         predicted_img = self.draw_predicted_layer(img.copy(), num_cartridges, contours)
 
         return num_cartridges, inference_time, predicted_img, original_img
+
+def get_data_button():
+    ip = '169.254.133.68'
+    host = 'http://' + ip + '/iolinkmaster/port[1]/iolinkdevice/'
+    url = 'pdin/getdata'
+    get_request = requests.get(host + url)
+    status = get_request.status_code
+    if status == 200: #if there is an established connection
+        txt = get_request.text
+        status_dict = json.loads(txt)
+        state = str(status_dict.get('data').get('value'))
+        if state == '0100': return 'ON'
+        else: return 'OFF'
+
+def post_data_light(data):
+    ip = '169.254.133.68'
+    response = requests.post('http://'+ ip, json=data)
+    return response.status_code
