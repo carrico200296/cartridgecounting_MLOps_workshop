@@ -1,15 +1,12 @@
 """Looper implementation."""
 
 import sys
-
 sys.path.append("../")
 
 from typing import Optional, List
 
 import torch
-from torch.utils.tensorboard import SummaryWriter
 import numpy as np
-import matplotlib
 import pytorch.utils as torch_utils
 from tqdm import tqdm
 
@@ -25,7 +22,6 @@ class Looper:
         optimizer: torch.optim.Optimizer,
         data_loader: torch.utils.data.DataLoader,
         dataset_size: int,
-        tensorboard_writer: SummaryWriter = None,
         validation: bool = False,
     ):
         """
@@ -49,7 +45,6 @@ class Looper:
         self.loader = data_loader
         self.size = dataset_size
         self.validation = validation
-        self.tensorboard_writer = tensorboard_writer
         self.running_loss = []
 
     def run(self):
@@ -62,7 +57,6 @@ class Looper:
         self.true_values = []
         self.predicted_values = []
         self.errors = []
-        self.running_loss.append(0)
         self.running_loss.append(0)
         
         # set a proper mode: train or eval
@@ -106,25 +100,6 @@ class Looper:
 
         # calculate errors and standard deviation
         self.update_errors()
-
-        # update tensorboard
-        if self.tensorboard_writer:
-            if self.validation:
-                self.tensorboard_writer.add_scalar("Loss/Valid", loss.item())
-                self.tensorboard_writer.add_scalar(
-                    "MeanCountError/Valid", np.mean(self.errors)
-                )
-                self.tensorboard_writer.add_histogram(
-                    "ErrorCount/Valid", np.array(self.errors)
-                )
-            else:
-                self.tensorboard_writer.add_scalar("Loss/Train", loss.item())
-                self.tensorboard_writer.add_scalar(
-                    "MeanCountError/Train", np.mean(self.errors)
-                )
-                self.tensorboard_writer.add_histogram(
-                    "ErrorCount/Train", np.array(self.errors)
-                )
 
         # print epoch summary
         self.log()

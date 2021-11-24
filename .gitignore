@@ -1,5 +1,6 @@
 .vscode/
 .ipynb*/
-data/
+dataset/
 .history/
 __pycache__/
+runs/
